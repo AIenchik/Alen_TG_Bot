@@ -2,7 +2,7 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 import config
-from handlers import common, message
+from handlers import common, message, career_choice
 
 
 async def main():
@@ -16,7 +16,8 @@ async def main():
     dp = Dispatcher()
 
     dp.include_router(common.router)
-    dp.include_router(echo.router)
+    dp.include_router(career_choice.router)
+    dp.include_router(message.router)
 
     await dp.start_polling(bot)
 
