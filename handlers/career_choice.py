@@ -44,7 +44,9 @@ async def job_incorrect(message: types.Message):
 @router.message(CareerChoice.grade, F.text.in_(available_grades))
 async def grade_chosen(message: types.Message, state: FSMContext):
     user_data = await state.get_data()
-    await message.answer(f"Congratulations now u r a {user_data.get('profession')}, grade: {message.text}")
+    await message.answer(f"Congratulations now u r a {user_data.get('profession')}, grade: {message.text}",
+                         reply_markup=types.ReplyKeyboardRemove()
+    )
     await state.clear()
 
 @router.message(CareerChoice.grade)
