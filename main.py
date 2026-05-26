@@ -2,7 +2,7 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 import config
-from handlers import common, echo, career_choice, random_fact
+from handlers import common, echo, career_choice, random_fact, start, chat_gpt
 from services.chat_gpt import ChatGptService
 
 
@@ -20,7 +20,8 @@ async def main():
     chat_gpt_service = ChatGptService(api_key=OPENAI_TOKEN)
     dp['chat_gpt_service'] = chat_gpt_service
 
-    dp.include_router(common.router)
+    dp.include_router(start.router)
+    dp.include_router(chat_gpt.router)
     dp.include_router(career_choice.router)
     dp.include_router(random_fact.router)
     dp.include_router(echo.router)
