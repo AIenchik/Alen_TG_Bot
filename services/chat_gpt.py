@@ -5,17 +5,10 @@ class ChatGptService:
     def __init__(self, api_key: str):
         self.client = AsyncOpenAI(api_key=api_key)
 
-    async def ask(self, user_text: str, role_text: str) -> str:
+    async def ask(self, messages: list) -> str:
         response = await self.client.chat.completions.create(
             model='gpt-4o-mini',
-            messages=[
-                {   'role': 'system',
-                    'content': role_text,
-                },
-                {   'role': 'user',
-                    'content': user_text,
-                },
-            ],
+            messages=messages,
             max_tokens=700,
             temperature=0.4,
         )
