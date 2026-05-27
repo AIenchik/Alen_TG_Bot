@@ -6,3 +6,4 @@ inline_button_done = InlineKeyboardButton(text='Закончить', callback_da
 
 inline_keyboard_random = InlineKeyboardMarkup(inline_keyboard=[[inline_button_want_more,
                                                          inline_button_done]])
+inline_keyboard_talk = InlineKeyboardMarkup(inline_keyboard=[[inline_button_done]])

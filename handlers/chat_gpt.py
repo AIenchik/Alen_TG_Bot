@@ -54,7 +54,7 @@ async def gpt_message(
         }
     )
 
-    await state.update_data(previous_messages=previous_messages)
+    await state.update_data(previous_messages=previous_messages[-10:])
 
     await message.answer(answer, reply_markup=make_row_keyboard(['/start']))
 

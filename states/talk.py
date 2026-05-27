@@ -2,4 +2,5 @@ from aiogram.fsm.state import State, StatesGroup
 
 
 class TalkState(StatesGroup):
-    gpt = State()
+    choice = State()
+    talk = State()
