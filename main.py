@@ -2,7 +2,7 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 import config
-from handlers import talk, echo, career_choice, random_fact, start, chat_gpt
+from handlers import talk, echo, career_choice, random_fact, start, chat_gpt, quiz
 from services.chat_gpt import ChatGptService
 
 
@@ -25,6 +25,7 @@ async def main():
     dp.include_router(career_choice.router)
     dp.include_router(talk.router)
     dp.include_router(random_fact.router)
+    dp.include_router(quiz.router)
     dp.include_router(echo.router)
 
     await dp.start_polling(bot)
