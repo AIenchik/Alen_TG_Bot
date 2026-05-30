@@ -26,7 +26,7 @@ async def gpt_command(message: types.Message, state: FSMContext):
         caption='Выбери личность из предложенных, давай пообщаемся!',
         reply_markup=make_row_keyboard(available_persons)
     )
-    await state.update_data(previous_messages=[])
+    await state.set_data({'previous_messages': []})
     await state.set_state(TalkState.choice)
 
 

@@ -18,7 +18,7 @@ async def gpt_command(message: types.Message, state: FSMContext):
         photo=photo,
         caption='Ты в режиме GPT, задавай вопрос!'
     )
-    await state.update_data(previous_messages=[])
+    await state.set_data({'previous_messages': []})
     await state.set_state(GptState.gpt)
 
 
