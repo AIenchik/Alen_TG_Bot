@@ -5,7 +5,7 @@ from services.chat_gpt import ChatGptService
 from prompts.random_fact import random_fact, random_role
 from keyboards.inline_keyboard import inline_keyboard_random
 from keyboards.keyboards import kb1
-from states import start, random
+from states import random
 
 
 
