@@ -6,7 +6,7 @@ inline_button_done = InlineKeyboardButton(text='Закончить', callback_da
 inline_button_want_more_question = InlineKeyboardButton(text='Хочу еще вопрос', callback_data='want_more_question')
 inline_button_another_topic = InlineKeyboardButton(text='Другая тема', callback_data='another_topic')
 inline_button_another_language = InlineKeyboardButton(text='Поменять язык', callback_data='another_language')
-
+inline_button_not_liked = InlineKeyboardButton(text='Не нравится', callback_data='not_liked')
 
 inline_keyboard_random = InlineKeyboardMarkup(inline_keyboard=[[inline_button_want_more_fact,
                                                          inline_button_done]])
@@ -22,3 +22,9 @@ inline_keyboard_translator = InlineKeyboardMarkup(inline_keyboard=[
     [inline_button_another_language],
     [inline_button_done]
 ])
+
+inline_keyboard_recommendation = InlineKeyboardMarkup(inline_keyboard=[
+    [inline_button_not_liked],
+    [inline_button_done]
+])
+
