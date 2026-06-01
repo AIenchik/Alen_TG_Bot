@@ -28,7 +28,8 @@ async def quiz_command(message: types.Message, state: FSMContext):
         caption='Выбери тему из предложенных ниже, и мы сыграем в викторину!',
         reply_markup=make_row_keyboard(available_topics)
     )
-    await state.set_data({'topic': '', 'score': 0, 'previous_messages': [], 'total_questions': 0, 'current_question': ''})
+    await state.set_data({'topic': '', 'score': 0, 'total_questions': 0,
+                          'current_question': '', 'used_questions': []})
     await state.set_state(QuizState.topic_state)
 
 @router.message(QuizState.topic_state, F.text.in_(available_topics))
@@ -37,26 +38,20 @@ async def topic_choose(message: types.Message, state: FSMContext, chat_gpt_servi
     await message.answer(f'Ты выбрал тему "{message.text}" загружаю викторину!')
     await state.set_state(QuizState.quiz_state)
     data = await state.get_data()
-    previous_messages = data.get('previous_messages')
+    used_questions = data.get('used_questions')
     answer = await chat_gpt_service.ask(
         messages=[
             {
                 'role': 'system',
                 'content': TOPICS.get(data.get('topic'))
             },
-            *previous_messages
         ]
     )
 
-    previous_messages.append(
-        {
-            'role': 'assistant',
-            'content': answer
-        }
-    )
+    used_questions.append(answer)
     await state.update_data(current_question=answer,
                             total_questions = data.get("total_questions") + 1,
-                            previous_messages=previous_messages[-10:])
+                            used_questions=used_questions)
     await message.answer(answer)
 
 @router.message(QuizState.topic_state)
@@ -79,7 +74,8 @@ async def quiz_game(message: types.Message, state: FSMContext, chat_gpt_service:
         Формат ответа:
 
         {
-            "correct": true
+            "correct": true,
+            "explanation": "Краткое объяснение почему не верно или верно"
         }
         """
             },
@@ -96,33 +92,27 @@ async def quiz_game(message: types.Message, state: FSMContext, chat_gpt_service:
 
     if result['correct']:
         await state.update_data(score=data.get("score") + 1)
-        await message.answer(f'''Молодец! Счет: {data.get("score") + 1} из {data.get("total_questions")} вопросов. Еще вопрос?''', reply_markup=inline_keyboard_quiz)
+        await message.answer(f'''Молодец! Счет: {data.get("score") + 1} из {data.get("total_questions")} вопросов. {result['explanation']} Еще вопрос?''', reply_markup=inline_keyboard_quiz)
     else:
-        await message.answer(f'К сожалению не верно. Счет: {data.get("score")} из {data.get("total_questions")}. Еще вопрос?', reply_markup=inline_keyboard_quiz)
+        await message.answer(f'К сожалению не верно. Счет: {data.get("score")} из {data.get("total_questions")}. {result['explanation']} Еще вопрос?', reply_markup=inline_keyboard_quiz)
 
-@router.callback_query(F.data == 'want_more')
+@router.callback_query(F.data == 'want_more_question')
 async def one_more_question(callback: types.CallbackQuery, state: FSMContext, chat_gpt_service: ChatGptService):
     data = await state.get_data()
-    previous_messages = data.get('previous_messages')
+    used_questions = data.get('used_questions')
     answer = await chat_gpt_service.ask(
         messages=[
             {
                 'role': 'system',
-                'content': TOPICS.get(data.get('topic'))
+                'content': TOPICS.get(data.get('topic')) + f'Не повторяй вопросы {used_questions}'
             },
-            *previous_messages
         ]
     )
 
-    previous_messages.append(
-        {
-            'role': 'assistant',
-            'content': answer
-        }
-    )
+    used_questions.append(answer)
     await state.update_data(current_question=answer,
                             total_questions=data.get("total_questions") + 1,
-                            previous_messages=previous_messages[-10:])
+                            used_questions=used_questions)
     await callback.message.answer(answer, reply_markup=inline_keyboard_quiz)
     await callback.answer()
 
@@ -131,6 +121,7 @@ async def topic_change(callback: types.CallbackQuery, state: FSMContext):
     await state.set_state(QuizState.topic_state)
     await callback.message.answer("Выбери тему из предложенных ниже",
                                   reply_markup=make_row_keyboard(available_topics))
+    await state.update_data(score=0, total_questions=0)
     await callback.answer()
 
 @router.callback_query(F.data == 'done')

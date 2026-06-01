@@ -17,7 +17,14 @@ used_facts = set()
 
 @router.message(Command('random'))
 async def command_random(message: types.Message, chat_gpt_service: ChatGptService, state: FSMContext):
-    answer = await chat_gpt_service.ask(role_text=random_role, user_text=random_fact)
+    answer = await chat_gpt_service.ask(
+        messages=[
+            {
+                'role': 'system',
+                'content': random_fact + f'Без вот этих уже выданных фактов {list(used_facts)}'
+            },
+        ]
+    )
 
     photo = types.FSInputFile('images/random_fact.jpg')
 
@@ -35,7 +42,12 @@ async def command_random(message: types.Message, chat_gpt_service: ChatGptServic
 @router.callback_query(F.data == 'want_more')
 async def callback_ask_gpt(callback: types.CallbackQuery, chat_gpt_service: ChatGptService):
     answer = await chat_gpt_service.ask(
-        role_text=random_role, user_text=random_fact + f'Без вот этих уже выданных фактов {list(used_facts)}'
+        messages = [
+            {
+                'role': 'system',
+                'content': random_fact + f'Без вот этих уже выданных фактов {list(used_facts)}'
+            },
+        ]
     )
     await callback.message.answer(answer, reply_markup=inline_keyboard_random)
     await callback.answer()
@@ -51,7 +63,7 @@ async def callback_ask_gpt(callback: types.CallbackQuery, state: FSMContext):
 • генерировать случайные факты
 • отвечать на вопросы
 • могу стать известной личностью
-• генерировать квиз
+• можем сыграть в викторину
 
 Выбери действие ниже 👇
 """,
