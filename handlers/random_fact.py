@@ -2,15 +2,12 @@ from aiogram import Router, types, F
 from aiogram.filters.command import Command
 from aiogram.fsm.context import FSMContext
 from services.chat_gpt import ChatGptService
-from prompts.random_fact import random_fact, random_role
+from prompts.random_fact import random_fact
 from keyboards.inline_keyboard import inline_keyboard_random
 from keyboards.keyboards import kb1
 from states import random
 
-
-
 router = Router()
-
 
 used_facts = set()
 
@@ -37,12 +34,10 @@ async def command_random(message: types.Message, chat_gpt_service: ChatGptServic
     used_facts.add(answer)
 
 
-
-
 @router.callback_query(F.data == 'want_more')
 async def callback_ask_gpt(callback: types.CallbackQuery, chat_gpt_service: ChatGptService):
     answer = await chat_gpt_service.ask(
-        messages = [
+        messages=[
             {
                 'role': 'system',
                 'content': random_fact + f'Без вот этих уже выданных фактов {list(used_facts)}'
@@ -51,6 +46,7 @@ async def callback_ask_gpt(callback: types.CallbackQuery, chat_gpt_service: Chat
     )
     await callback.message.answer(answer, reply_markup=inline_keyboard_random)
     await callback.answer()
+
 
 @router.callback_query(F.data == 'done')
 async def callback_ask_gpt(callback: types.CallbackQuery, state: FSMContext):
@@ -67,6 +63,6 @@ async def callback_ask_gpt(callback: types.CallbackQuery, state: FSMContext):
 
 Выбери действие ниже 👇
 """,
-    reply_markup=kb1
-)
+                                  reply_markup=kb1
+                                  )
     await callback.answer()

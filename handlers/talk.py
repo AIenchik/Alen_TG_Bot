@@ -19,7 +19,7 @@ available_persons = [
 
 @router.message(Command('talk'))
 async def gpt_command(message: types.Message, state: FSMContext):
-    photo = types.FSInputFile('images/gpt-4o.jpg')
+    photo = types.FSInputFile('images/talk_image.jpg')
 
     await message.answer_photo(
         photo=photo,

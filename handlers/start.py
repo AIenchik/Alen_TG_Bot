@@ -2,9 +2,9 @@ from aiogram import Router, types
 from aiogram.filters.command import Command
 from aiogram.fsm.context import FSMContext
 from keyboards.keyboards import kb1
-from states.start import StartState
 
 router = Router()
+
 
 # /start
 @router.message(Command('start'))
@@ -23,5 +23,5 @@ async def command_start(message: types.Message, state: FSMContext):
 
 Выбери действие ниже 👇
 """,
-    reply_markup=kb1
-)
+                         reply_markup=kb1
+                         )

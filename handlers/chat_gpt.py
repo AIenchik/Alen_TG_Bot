@@ -6,7 +6,6 @@ from prompts.gpt_bot import gpt_role
 from states.gpt import GptState
 from keyboards.prof_keyboard import make_row_keyboard
 
-
 router = Router()
 
 
@@ -20,7 +19,6 @@ async def gpt_command(message: types.Message, state: FSMContext):
     )
     await state.set_data({'previous_messages': []})
     await state.set_state(GptState.gpt)
-
 
 
 @router.message(GptState.gpt)
@@ -57,4 +55,3 @@ async def gpt_message(
     await state.update_data(previous_messages=previous_messages[-10:])
 
     await message.answer(answer, reply_markup=make_row_keyboard(['/start']))
-

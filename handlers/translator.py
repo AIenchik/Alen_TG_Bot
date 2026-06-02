@@ -3,7 +3,6 @@ from aiogram.filters.command import Command
 from aiogram.fsm.context import FSMContext
 from services.chat_gpt import ChatGptService
 from states.translator import TranslatorState
-from prompts.persons import PERSONS
 from keyboards.prof_keyboard import make_row_keyboard
 from keyboards.inline_keyboard import inline_keyboard_translator
 from keyboards.keyboards import kb1
@@ -17,10 +16,11 @@ available_languages = [
     'Японский'
 ]
 
+
 @router.message(Command('translate'))
 async def command_translate(message: types.Message, state: FSMContext):
     await state.clear()
-    photo = types.FSInputFile('images/gpt-4o.jpg')
+    photo = types.FSInputFile('images/translate_image.png')
 
     await message.answer_photo(
         photo=photo,
@@ -29,15 +29,18 @@ async def command_translate(message: types.Message, state: FSMContext):
     )
     await state.set_state(TranslatorState.choose_language)
 
+
 @router.message(TranslatorState.choose_language, F.text.in_(available_languages))
 async def language_choose(message: types.Message, state: FSMContext):
     await state.set_data({'language': message.text, 'current_text': ''})
     await message.answer(f'Ты выбрал {message.text} язык, пиши свой текст ниже, и я все сделаю!')
     await state.set_state(TranslatorState.translate)
 
+
 @router.message(TranslatorState.choose_language)
 async def incorrect_language(message: types.Message):
     await message.answer(f'На {message.text} я не смогу перевести, выбери из предложенных!')
+
 
 @router.message(TranslatorState.translate)
 async def translator(message: types.Message, state: FSMContext, chat_gpt_service: ChatGptService):
@@ -53,12 +56,14 @@ async def translator(message: types.Message, state: FSMContext, chat_gpt_service
     )
     await message.answer(answer, reply_markup=inline_keyboard_translator)
 
+
 @router.callback_query(F.data == "another_language")
 async def another_language(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.answer('Окей, давай поменяем язык перевода, правила те же, выбери из доступных ниже!',
-                         reply_markup=make_row_keyboard(available_languages))
+                                  reply_markup=make_row_keyboard(available_languages))
     await state.set_state(TranslatorState.choose_language)
     await callback.answer()
+
 
 @router.callback_query(F.data == "done")
 async def end_translation(callback: types.CallbackQuery, state: FSMContext):

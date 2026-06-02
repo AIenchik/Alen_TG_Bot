@@ -12,10 +12,11 @@ router = Router()
 
 available_categories = ['Фильмы', 'Книги', 'Музыка']
 
+
 @router.message(Command('recommend'))
 async def recommendation_command(message: types.Message, state: FSMContext):
     await state.clear()
-    photo = types.FSInputFile('images/gpt-4o.jpg')
+    photo = types.FSInputFile('images/what_u_need.jpg')
 
     await message.answer_photo(
         photo=photo,
@@ -25,16 +26,19 @@ async def recommendation_command(message: types.Message, state: FSMContext):
     await state.set_data({'category': '', 'not_liked': [], 'genre': ''})
     await state.set_state(RecommendationState.choose_state)
 
+
 @router.message(RecommendationState.choose_state, F.text.in_(available_categories))
 async def category_choose(message: types.Message, state: FSMContext):
     await state.update_data(category=message.text)
     await message.answer(f'Хорошо, теперь напиши жанр')
     await state.set_state(RecommendationState.recommendation)
 
+
 @router.message(RecommendationState.choose_state)
 async def incorrect_choose(message: types.Message):
     await message.answer('К сожалению такой темы нет, выбери из предложенных ниже',
                          reply_markup=make_row_keyboard(available_categories))
+
 
 @router.message(RecommendationState.recommendation)
 async def recommendation(message: types.Message, state: FSMContext, chat_gpt_service: ChatGptService):
@@ -55,6 +59,7 @@ async def recommendation(message: types.Message, state: FSMContext, chat_gpt_ser
     await state.update_data(not_liked=not_liked)
     await message.answer(answer, reply_markup=inline_keyboard_recommendation)
 
+
 @router.callback_query(F.data == 'not_liked')
 async def dont_liked(callback: types.CallbackQuery, state: FSMContext, chat_gpt_service: ChatGptService):
     data = await state.get_data()
@@ -73,6 +78,7 @@ async def dont_liked(callback: types.CallbackQuery, state: FSMContext, chat_gpt_
     await state.update_data(not_liked=not_liked)
     await callback.message.answer(answer, reply_markup=inline_keyboard_recommendation)
     await callback.answer()
+
 
 @router.callback_query(F.data == "done")
 async def end_translation(callback: types.CallbackQuery, state: FSMContext):
